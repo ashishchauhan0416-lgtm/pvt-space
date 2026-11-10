@@ -1,0 +1,15 @@
+# Private runtime data - never publish
+config/config.json
+config/channels.txt
+session/
+data/
+logs/
+reports/
+backups/
+*.session
+*.session-journal
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.log
+__pycache__/
