@@ -1,13 +1,23 @@
+<div align="center">
+
 # PVT SPACE
 
-A Windows-first Telegram media archiver, router and duplicate manager (Python 3.11+, [Telethon](https://docs.telethon.dev)).
+### A Windows-first Telegram media archiver, router, and duplicate manager
 
-It uses **your own Telegram user session** to read chats you already belong to and forward their posts into two
-destinations you control. It works through backlogs safely: everything is resumable, dry-run by default, and
-never modifies source chats.
+Organise Telegram media with configurable routing rules, album-aware handling, resumable duplicate scans, and a safe dry-run mode.
+
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)
+![API](https://img.shields.io/badge/API-Telethon-26A5E4?logo=telegram&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Personal%20project-orange)
+
+</div>
+
+PVT SPACE is a Python project for people who manage large Telegram media archives. It uses a Telegram **user session** through [Telethon](https://docs.telethon.dev) to inspect source chats, classify messages, and route content to configured destinations. It also includes utilities for duplicate detection, archive-size reporting, chat-ID lookup, and optional free cloud runs.
+
+> **New to this? Start here: [Beginner's guide](README_BEGINNER.md)**: every step explained in simple language with examples.
 
 > Personal project. Use it only with accounts and chats you own or are allowed to archive, and follow Telegram's Terms of Service and your local laws.
-
 ## What it does
 - **Routes** posts by rule (30-second video cutoff by default):
   - long or unknown-length videos, and albums containing one, go to the *archive* chat (PVT SPACE);
