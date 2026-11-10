@@ -1,0 +1,5 @@
+# One source per line. Blank lines and lines starting with # are ignored.
+# Use the exact ID for private channels (find it with tools\print_exact_channel_id.py).
+@public_channel_username
+https://t.me/another_public_channel
+id:-1001234567890

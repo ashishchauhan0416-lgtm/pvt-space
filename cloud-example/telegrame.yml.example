@@ -1,0 +1,70 @@
+name: TELEGRAME
+
+on:
+  schedule:
+    - cron: "30 20 * * *"        # every day at 20:30 UTC = 02:00 India time
+  workflow_dispatch:             # also lets you press "Run workflow" by hand
+    inputs:
+      limit:
+        description: "TEST RUN: process only this many posts (for example 20). Leave empty for a normal full run."
+        required: false
+        default: ""
+
+permissions:
+  contents: write                # needed to save progress to the "state" branch
+
+concurrency:                     # never two runs at once (two logins at once could end the session)
+  group: telegrame
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      PVTSPACE_API_ID: ${{ secrets.TG_API_ID }}
+      PVTSPACE_API_HASH: ${{ secrets.TG_API_HASH }}
+      PVTSPACE_SESSION_STRING: ${{ secrets.TG_SESSION }}
+      PVTSPACE_DESTINATION: ${{ secrets.TG_DESTINATION }}
+      PVTSPACE_DIANE: ${{ secrets.TG_DIANE }}
+      PVTSPACE_CHANNELS: ${{ secrets.TG_CHANNELS }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Restore saved progress
+        run: bash cloud-example/restore_state.sh
+
+      - name: Run TELEGRAME (stops itself after 60 minutes, progress is saved)
+        run: |
+          set +e
+          LIMIT_ARG=""
+          if [ -n "${{ github.event.inputs.limit }}" ]; then LIMIT_ARG="--limit ${{ github.event.inputs.limit }}"; fi
+          echo "Extra options: $LIMIT_ARG"
+          timeout -s INT 60m python pipeline/telegram_unified_pipeline.py --execute $LIMIT_ARG
+          code=$?
+          echo "Exit code: $code"
+          # 124 = stopped by the 60-minute limit, 130 = interrupted: both are normal and safe
+          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ] && [ "$code" -ne 130 ]; then exit "$code"; fi
+
+      - name: Save progress
+        if: always()
+        env:
+          REMOTE_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        run: bash cloud-example/save_state.sh
+
+      - name: Keep the log for 14 days
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: logs/
+          retention-days: 14
+          if-no-files-found: ignore
